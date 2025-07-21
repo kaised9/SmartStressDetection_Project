@@ -1,0 +1,131 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartStress: AI-Powered Stress Detector</title>
+    <link rel="stylesheet" href="{% static 'stressdetector/css/home.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+<section class="contact-section">
+    <div class="contact-banner">
+        <img src="{% static 'stressdetector/image/logo.png' %}" alt="SmartStress Logo" style="width: 156px;">
+        <h2><b>Welcome To</b></h2>
+        <h3>SmartStress Detection: An Intelligent Facial Stress Recognition System</h3>
+        <p>Detect Your Stress From a Simple Image</p>
+    </div>
+
+    <div class="contact-container">
+        <h2 class="contact-title">Upload Your Face Image</h2>
+        <p class="contact-description">
+            Upload a face image to detect your current <span style="color:red;">Stress Level</span>, mood and more with our AI system.
+        </p>
+
+        <form action="/predict/" method="post" enctype="multipart/form-data" class="contact-form">
+            {% csrf_token %}
+            <label>Upload Image</label>
+            <input type="file" name="face_image" accept="image/*" required>
+            <button type="submit">Analyze Stress</button>
+        </form>
+
+        <div class="result-box">
+            <h4>Prediction Result</h4>
+            {% if prediction %}
+                <p><strong>Stress Level:</strong> {{ prediction.stress_level }}</p>
+                <p><strong>Mood:</strong> {{ prediction.mood }}</p>
+                <p><strong>Stress Type:</strong> {{ prediction.stress_type }}</p>
+                <p><strong>Confidence:</strong> {{ prediction.confidence }}%</p>
+
+                <!-- Confidence Bar -->
+                <div class="result-extra">
+                    <strong>Confidence Level:</strong>
+                    <div style="background: #ddd; border-radius: 5px; overflow: hidden; height: 10px;">
+                        <div style="width: {{ prediction.confidence }}%; background: #ff5722; height: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- Suggestion -->
+                <div class="result-extra">
+                    <strong>Suggestion:</strong>
+                    {% if prediction.stress_level == "High" %}
+                        Try deep breathing or a short walk. Consider meditation or a digital detox.
+                    {% elif prediction.stress_level == "Medium" %}
+                        You're doing okay. Stay hydrated and take a 5-minute break.
+                    {% else %}
+                        You're calm! Keep doing what you're doing 😊
+                    {% endif %}
+                </div>
+            {% else %}
+                <div>
+                    <strong>No prediction yet:</strong> Upload an image to see stress insights.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Weekly Stress Trends -->
+<div class="trend-dashboard">
+    <h3>📊 Weekly Stress Trends</h3>
+    <canvas id="stressChart" width="400" height="250"></canvas>
+</div>
+
+<footer class="contact-footer">
+    <div class="footer-item">
+        <h4>🧠 Stress AI</h4>
+        <p>Face-Powered Stress Detection</p>
+    </div>
+    <div class="footer-item">
+        <h4>📈 Mood Trends</h4>
+        <p>Visualize Your Emotional Journey</p>
+    </div>
+    <div class="footer-item">
+        <h4>💡 Tips & Suggestions</h4>
+        <p>Control Stress. Live Better.</p>
+    </div>
+    <div class="footer-item">
+        <h4>🔍 Explainable AI</h4>
+        <p>Grad-CAM Face Heatmap Coming Soon</p>
+    </div>
+</footer>
+
+<!-- Chart JS -->
+<script>
+    const ctx = document.getElementById('stressChart').getContext('2d');
+    let stressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: 'Stress Level Over Time',
+                data: {{ data|safe }},
+                borderColor: '#ff5722',
+                fill: false,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    setInterval(() => {
+        fetch('/api/trends/')
+            .then(response => response.json())
+            .then(data => {
+                stressChart.data.labels = data.labels;
+                stressChart.data.datasets[0].data = data.data;
+                stressChart.update();
+            });
+    }, 5000);
+</script>
+</body>
+</html>
