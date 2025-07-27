@@ -8,6 +8,14 @@ body {
     color: #333;
 }
 
+.site-logo {
+  width: 220px;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 /* Banner Section */
 .contact-banner {
     text-align: center;
@@ -27,13 +35,13 @@ body {
     font-size: 28px;
     margin: 5px 0;
     font-weight: 700;
-    color: #2c5e2e;
+    color: #014128;
 }
 
 .contact-banner p {
     font-size: 16px;
     margin-top: 10px;
-    color: #333;
+    color: #1d0101;
 }
 
 /* Contact Container */

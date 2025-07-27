@@ -1,0 +1,9 @@
+Django>=5.2
+Pillow
+numpy
+opencv-python
+tensorflow
+keras
+matplotlib
+scikit-learn
+djangorestframework
