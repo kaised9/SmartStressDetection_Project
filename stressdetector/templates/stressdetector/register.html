@@ -1,0 +1,48 @@
+<!-- filepath: f:\SmartStressDetection_Project\stressdetector\templates\stressdetector\register.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account - SmartStress</title>
+    <link rel="stylesheet" href="{% static 'stressdetector/css/home.css' %}">
+    <style>
+        body {
+            background: linear-gradient(to right, #e0f7fa, #e1f5fe);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .register-container {
+            max-width: 400px;
+            margin: 80px auto;
+            background: #ffffffdd;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .register-container h2 {
+            color: #006064;
+        }
+        .welcome-msg {
+            font-size: 15px;
+            color: #37474f;
+            margin-bottom: 20px;
+        }
+        a {
+            color: #00838f;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>Join SmartStress 🌿</h2>
+        <p class="welcome-msg">Create an account to start tracking your stress and feel better every day.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </div>
+</body>
+</html>

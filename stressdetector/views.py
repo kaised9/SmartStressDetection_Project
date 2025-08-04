@@ -1,26 +1,93 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.files.storage import FileSystemStorage
+from django.http import JsonResponse
 import os
+from .models import StressPrediction
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.urls import path, include
 
 
+@login_required(login_url='login')
 def home(request):
-    result = None
-    if request.method == 'POST' and request.FILES.get('image'):
-        image = request.FILES['image']
+    # Dummy data for weekly stress trends
+    labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    data = [60, 70, 65, 80, 75, 60, 55]
+
+    return render(request, 'stressdetector/home.html', {
+        'labels': labels,
+        'data': data,
+    })
+
+
+def predict(request):
+    prediction = None
+    if request.method == 'POST' and request.FILES.get('face_image'):
+        image = request.FILES['face_image']
         fs = FileSystemStorage()
         filename = fs.save(image.name, image)
         image_path = fs.path(filename)
 
-        # TODO: Run MobileNetV2 prediction here
-        # For now, use dummy result
-        result = {
+        # Mock prediction
+        prediction = {
             'stress_level': 'Medium',
-            'mood_tag': 'Neutral',
-            'heatmap_url': None,  # Replace with actual heatmap image path if available
+            'mood': 'Neutral',
+            'stress_type': 'Work',
+            'confidence': 78,
         }
 
-        # Optionally delete image after processing
+        # Save to database if user is authenticated
+        if request.user.is_authenticated:
+            StressPrediction.objects.create(
+                user=request.user,
+                image=image,
+                stress_level=prediction['stress_level'],
+                mood=prediction['mood'],
+                stress_type=prediction['stress_type'],
+                confidence=prediction['confidence']
+            )
+
         os.remove(image_path)
 
-    return render(request, 'stressdetector/home.html', {'result': result})
+    # Dummy data for weekly stress trends
+    labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    data = [60, 70, 65, 80, 75, 60, 55]
+
+    return render(request, 'stressdetector/home.html', {
+        'prediction': prediction,
+        'labels': labels,
+        'data': data,
+    })
+
+
+def trends_api(request):
+    labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    data = [60, 70, 65, 80, 75, 60, 55]
+    return JsonResponse({'labels': labels, 'data': data})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()  # Saves user to database
+            messages.success(request, "Account created successfully! Please log in.")
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'stressdetector/register.html', {'form': form})
+
+
+def history(request):
+    if request.user.is_authenticated:
+        predictions = StressPrediction.objects.filter(user=request.user).order_by('-created_at')
+        return render(request, 'stressdetector/history.html', {'predictions': predictions})
+    else:
+        return redirect('login')
+
+
+urlpatterns = [
+    path('accounts/', include('django.contrib.auth.urls')),
+]
 

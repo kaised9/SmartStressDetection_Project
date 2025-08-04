@@ -69,11 +69,40 @@
     </div>
 </section>
 
-<!-- Weekly Stress Trends -->
+<!-- Weekly Stress Trend Chart -->
 <div class="trend-dashboard">
-    <h3>📊 Weekly Stress Trends</h3>
-    <canvas id="stressChart" width="400" height="250"></canvas>
+    <h4>Weekly Stress Trend</h4>
+    <canvas id="stressChart" width="400" height="200"></canvas>
 </div>
+
+<script>
+    const labels = {{ labels|safe }};
+    const data = {{ data|safe }};
+    const ctx = document.getElementById('stressChart').getContext('2d');
+    const stressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Stress Level',
+                data: data,
+                backgroundColor: 'rgba(255,87,34,0.2)',
+                borderColor: '#ff5722',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>
 
 <footer class="contact-footer">
     <div class="footer-item">
@@ -94,38 +123,13 @@
     </div>
 </footer>
 
-<!-- Chart JS -->
-<script>
-    const ctx = document.getElementById('stressChart').getContext('2d');
-    let stressChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: {{ labels|safe }},
-            datasets: [{
-                label: 'Stress Level Over Time',
-                data: {{ data|safe }},
-                borderColor: '#ff5722',
-                fill: false,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
-
-    setInterval(() => {
-        fetch('/api/trends/')
-            .then(response => response.json())
-            .then(data => {
-                stressChart.data.labels = data.labels;
-                stressChart.data.datasets[0].data = data.data;
-                stressChart.update();
-            });
-    }, 5000);
-</script>
+<!-- User Authentication Links -->
+<div class="auth-links">
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}! <a href="{% url 'logout' %}">Logout</a> | <a href="{% url 'history' %}">My History</a></p>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a> | <a href="{% url 'register' %}">Create Account</a></p>
+    {% endif %}
+</div>
 </body>
 </html>

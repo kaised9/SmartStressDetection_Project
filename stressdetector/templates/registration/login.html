@@ -1,0 +1,58 @@
+<!-- filepath: f:\SmartStressDetection_Project\stressdetector\templates\registration\login.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome Back - SmartStress</title>
+    <link rel="stylesheet" href="{% static 'stressdetector/css/home.css' %}">
+    <style>
+        body {
+            background: linear-gradient(to right, #cfd9df, #e2ebf0);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 80px auto;
+            background: #ffffffdd;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-container h2 {
+            color: #2c3e50;
+        }
+        .welcome-msg {
+            font-size: 15px;
+            color: #4a6572;
+            margin-bottom: 20px;
+        }
+        .success-message {
+            color: green;
+            font-size: 14px;
+        }
+        a {
+            color: #1e88e5;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Welcome Back 😊</h2>
+        <p class="welcome-msg">Log in to check your stress level and take care of your mind.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="{% url 'register' %}">Create Account</a></p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</body>
+</html>
