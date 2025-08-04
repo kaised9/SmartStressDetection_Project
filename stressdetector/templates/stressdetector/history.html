@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My History - SmartStressDetection</title>
+    <link rel="stylesheet" href="{% static 'stressdetector/css/home.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        .history-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 32px 24px;
+        }
+        .history-title {
+            font-size: 30px;
+            font-weight: bold;
+            color: #014128;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .table th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            color: #004d40;
+        }
+        .table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .stress-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .stress-high {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .stress-medium {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+        .stress-low {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .history-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .no-history {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <section class="contact-section">
+        <div class="contact-banner">
+            <img class="site-logo" src="{% static 'stressdetector/image/logo.png' %}" alt="SmartStress Logo">
+            <h2><b>MY STRESS HISTORY</b></h2>
+            <p>Track Your Stress Patterns Over Time</p>
+        </div>
+        
+        <div class="history-container">
+            <h2 class="history-title">Your Stress Detection History</h2>
+            
+            {% if predictions %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Stress Level</th>
+                            <th>Mood</th>
+                            <th>Stress Type</th>
+                            <th>Confidence</th>
+                            <th>Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prediction in predictions %}
+                            <tr>
+                                <td>{{ prediction.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <span class="stress-badge 
+                                        {% if prediction.stress_level == 'High' %}stress-high
+                                        {% elif prediction.stress_level == 'Medium' %}stress-medium
+                                        {% else %}stress-low{% endif %}">
+                                        {{ prediction.stress_level }}
+                                    </span>
+                                </td>
+                                <td>{{ prediction.mood }}</td>
+                                <td>{{ prediction.stress_type }}</td>
+                                <td>{{ prediction.confidence }}%</td>
+                                <td>
+                                    <img src="{{ prediction.image.url }}" alt="Stress Image" class="history-image">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="no-history">
+                    <p>No Stress Predictions Found Yet.</p>
+                    <p>Upload an Image to Start Tracking Your Stress Levels!</p>
+                    <a href="{% url 'home' %}" class="btn">Go to Home</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <div class="auth-links">
+        <p><a href="{% url 'home' %}">Back to Home</a> | <a href="{% url 'logout' %}">Logout</a></p>
+    </div>
+</body>
+</html>
